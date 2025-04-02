@@ -19,8 +19,13 @@ int main(){
     Rectangle nebRec{0.0, 0.0, nebula.width/8, nebula.height/8};
     Vector2 nebPos{windowWidth, windowHeight - nebRec.height};
 
+    // Obstacle animation variables
+    int nebFrame{};
+    const float nebUpdateTime{1.0/12.0};
+    float nebRunningTime{};
+
     // Obstacle X velocity
-    int nebVel{-600};
+    int nebVel{-200};
 
     // Setup player character
     Texture2D scarfy = LoadTexture("textures/scarfy.png");
@@ -83,8 +88,9 @@ int main(){
         // Update character position
         scarfyPos.y += velocity * deltaTime;
 
-        // Update running time
+        // Update character animation frame
         if(!isInAir){
+            // Update running time
             runningTime += deltaTime;
             if(runningTime >= updateTime){
                 runningTime = 0.0;
@@ -97,6 +103,17 @@ int main(){
             }
         }
 
+        // Update obstacle animation frame
+        nebRunningTime += deltaTime;
+        if(nebRunningTime >= nebUpdateTime){
+            nebRunningTime = 0.0;
+
+            nebRec.x = nebFrame * nebRec.width;
+            nebFrame++;
+            if(nebFrame > 7){
+                nebFrame = 0;
+            }
+        }
 
         // Stop drawing
         EndDrawing();
