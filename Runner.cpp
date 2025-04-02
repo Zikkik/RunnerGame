@@ -14,6 +14,14 @@ int main(){
     // Initialize new window
     InitWindow(windowWidth, windowHeight, "Runner");
 
+    // Setup obstacle
+    Texture2D nebula = LoadTexture("textures/12_nebula_spritesheet.png");
+    Rectangle nebRec{0.0, 0.0, nebula.width/8, nebula.height/8};
+    Vector2 nebPos{windowWidth, windowHeight - nebRec.height};
+
+    // Obstacle X velocity
+    int nebVel{-600};
+
     // Setup player character
     Texture2D scarfy = LoadTexture("textures/scarfy.png");
     Rectangle scarfyRec;
@@ -35,7 +43,7 @@ int main(){
     // Check if character is in air
     bool isInAir{false};
 
-    // Set frames per second
+    // Set frames per second 
     SetTargetFPS(60);
 
     // Game loop
@@ -59,13 +67,20 @@ int main(){
              isInAir = true;
         }
 
+        // Draw Obstacle
+        DrawTextureRec(nebula, nebRec, nebPos, WHITE);
+
+        // Draw Character
         DrawTextureRec(scarfy, scarfyRec, scarfyPos, WHITE);
 
         // Jump check
         if(IsKeyPressed(KEY_SPACE) && !isInAir)
             velocity += jumpVelocity;
 
-        // Update position
+        // Update obstacle position
+        nebPos.x += nebVel * deltaTime;
+
+        // Update character position
         scarfyPos.y += velocity * deltaTime;
 
         // Update running time
@@ -84,5 +99,6 @@ int main(){
         EndDrawing();
     }
     UnloadTexture(scarfy);
+    UnloadTexture(nebula);
     CloseWindow();
 }
