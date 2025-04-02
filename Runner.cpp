@@ -84,16 +84,19 @@ int main(){
         scarfyPos.y += velocity * deltaTime;
 
         // Update running time
-        runningTime += deltaTime;
-        if(runningTime >= updateTime){
-            runningTime = 0.0;
-
-            // Update animation frame
-            scarfyRec.x = animationFrame * scarfyRec.width; 
-            animationFrame++;
-            if(animationFrame > 5)
-                animationFrame = 0;
+        if(!isInAir){
+            runningTime += deltaTime;
+            if(runningTime >= updateTime){
+                runningTime = 0.0;
+    
+                // Update animation frame
+                scarfyRec.x = animationFrame * scarfyRec.width;
+                animationFrame++;
+                if(animationFrame > 5)
+                    animationFrame = 0;
+            }
         }
+
 
         // Stop drawing
         EndDrawing();
