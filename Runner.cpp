@@ -82,6 +82,13 @@ int main(){
     // Set frames per second 
     SetTargetFPS(60);
 
+    Texture2D background = LoadTexture("textures/far-buildings.png");
+    Texture2D midground = LoadTexture("textures/back-buildings.png");
+    Texture2D foreground = LoadTexture("textures/foreground.png");
+    float bgX{};
+    float mgX{};
+    float fgX{};
+
     // Game loop
     while(!WindowShouldClose()){
         // Delta Time
@@ -90,6 +97,39 @@ int main(){
         // Start drawing
         BeginDrawing();
         ClearBackground(WHITE);
+
+        // Scroll background
+        bgX -= 20 * deltaTime;
+        if(bgX <= -background.width * 2)
+            bgX = 0.0;
+
+        // Scroll midground
+        mgX -= 40 * deltaTime;
+        if(mgX <= -midground.width * 2)
+            mgX = 0.0;
+
+        // Scroll foreground
+        fgX -= 80 * deltaTime;
+        if(fgX <= -foreground.width * 2)
+            fgX = 0.0;
+
+        // Draw the background
+        Vector2 bg1Pos{bgX, 0.0};
+        DrawTextureEx(background, bg1Pos, 0.0, 2.0, WHITE);
+        Vector2 bg2Pos{bgX + background.width * 2, 0.0};
+        DrawTextureEx(background, bg2Pos, 0.0, 2.0, WHITE);
+
+        // Draw the midground
+        Vector2 mg1Pos{mgX, 0.0};
+        DrawTextureEx(midground, mg1Pos, 0.0, 2.0, WHITE);
+        Vector2 mg2Pos{mgX + midground.width * 2, 0.0};
+        DrawTextureEx(midground, mg2Pos, 0.0, 2.0, WHITE);
+
+        // Draw the background
+        Vector2 fg1Pos{fgX, 0.0};
+        DrawTextureEx(foreground, fg1Pos, 0.0, 2.0, WHITE);
+        Vector2 fg2Pos{fgX + foreground.width * 2, 0.0};
+        DrawTextureEx(foreground, fg2Pos, 0.0, 2.0, WHITE);
 
         // Ground check
         if(isOnGround(scarfyData, windowDimensions[1])){
@@ -134,5 +174,8 @@ int main(){
     }
     UnloadTexture(scarfy);
     UnloadTexture(nebula);
+    UnloadTexture(background);
+    UnloadTexture(midground);
+    UnloadTexture(foreground);
     CloseWindow();
 }
