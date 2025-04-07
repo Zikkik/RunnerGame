@@ -60,6 +60,8 @@ int main(){
         nebulae[i].pos.x = windowDimensions[0] + i * 300;
     }
 
+    float finishLine{nebulae[sizeOfNebulae - 1].pos.x};
+
     // Obstacle X velocity
     int nebVel{-200};
 
@@ -151,6 +153,9 @@ int main(){
         for (int i = 0; i < sizeOfNebulae; i++)
             nebulae[i].pos.x += nebVel * deltaTime;
 
+        // Update finishLine
+        finishLine += nebVel * deltaTime;
+
         // Update character position
         scarfyData.pos.y += velocity * deltaTime;
 
@@ -162,12 +167,38 @@ int main(){
         for(int i = 0; i < sizeOfNebulae; i++)
             nebulae[i] = updataAnimData(nebulae[i], deltaTime, 7);
 
-        // Draw Obstacles
-        for(int i = 0; i < sizeOfNebulae; i++)
-              DrawTextureRec(nebula, nebulae[i].rec, nebulae[i].pos, WHITE);
+        bool collision{};
+        for(AnimData nebula : nebulae){
 
-        // Draw Character
-        DrawTextureRec(scarfy, scarfyData.rec, scarfyData.pos, WHITE);
+            float pad{50};
+            Rectangle nebRec{
+                nebula.pos.x + pad,
+                nebula.pos.y + pad,
+                nebula.rec.width - 2 * pad,
+                nebula.rec.height - 2 * pad
+            };
+
+            Rectangle scarfyRec{
+                scarfyData.pos.x,
+                scarfyData.pos.y,
+                scarfyData.rec.width,
+                scarfyData.rec.height
+            };
+
+            if(CheckCollisionRecs(nebRec, scarfyRec))
+                collision = true;
+        }
+
+        if (collision){
+
+        } else {
+            // Draw Obstacles
+            for(int i = 0; i < sizeOfNebulae; i++)
+                DrawTextureRec(nebula, nebulae[i].rec, nebulae[i].pos, WHITE);
+
+            // Draw Character
+            DrawTextureRec(scarfy, scarfyData.rec, scarfyData.pos, WHITE);
+        }
 
         // Stop drawing
         EndDrawing();
