@@ -9,6 +9,23 @@ struct AnimData
     float runningTime;
 };
 
+bool isOnGround(AnimData data, int windowHeight){
+    return data.pos.y >= windowHeight - data.rec.height;
+}
+
+AnimData updataAnimData(AnimData data, float deltaTime, int maxFrame){
+    // Update running time
+    data.runningTime += deltaTime;
+    if (data.runningTime >= data.updateTime){
+        data.runningTime = 0.0;
+        // Update animation frame
+        data.rec.x = data.frame * data.rec.width;
+        data.frame++;
+        if(data.frame > maxFrame)
+            data.frame = 0;
+    }
+    return data;
+}
 
 int main(){
     // Set window 
@@ -21,29 +38,27 @@ int main(){
     // Acceleration due to gravity (pixels/s)/s
     const int gravity{1'000};
 
+    // Number of obstacles
+    const int sizeOfNebulae{6};
+
     // Initialize new window
     InitWindow(windowDimensions[0], windowDimensions[1], "Runner");
 
     // Setup obstacle
     Texture2D nebula = LoadTexture("textures/12_nebula_spritesheet.png");
-    AnimData nebData{
-        {0.0, 0.0, nebula.width/8, nebula.height/8},    // Rectangle rec
-        {windowDimensions[0], windowDimensions[1] - nebula.height/8},  // Vector2 pos
-        0,                                              // int frame
-        1.0 / 12.0,                                     // float updateTime
-        0.0                                             // float runningTime
-    };
+    AnimData nebulae[sizeOfNebulae]{};
 
-    Texture2D nebula2 = LoadTexture("textures/12_nebula_spritesheet.png");
-    AnimData neb2Data{
-        {0.0, 0.0, nebula2.width/8, nebula2.height/8},            // Rectangle rec
-        {windowDimensions[0] + 300, windowDimensions[1] - nebula2.height/8},    // Vector2 pos
-        0,                                                      // int frame
-        1.0 / 16.0,                                             // float updateTime
-        0.0                                                     // float runningTime
-    };
-
-    AnimData nebulae[2]{nebData, neb2Data};
+    for(int i = 0; i < sizeOfNebulae; i++){
+        nebulae[i].rec.x = 0.0;
+        nebulae[i].rec.y = 0.0;
+        nebulae[i].rec.width = nebula.width/8;
+        nebulae[i].rec.height = nebula.width/8;
+        nebulae[i].pos.y = windowDimensions[1] - nebula.height/8;
+        nebulae[i].frame = 0;
+        nebulae[i].runningTime = 0.0;
+        nebulae[i].updateTime = 1.0/16.0;
+        nebulae[i].pos.x = windowDimensions[0] + i * 300;
+    }
 
     // Obstacle X velocity
     int nebVel{-200};
@@ -77,7 +92,7 @@ int main(){
         ClearBackground(WHITE);
 
         // Ground check
-        if(scarfyData.pos.y >= windowDimensions[1] - scarfyData.rec.height){
+        if(isOnGround(scarfyData, windowDimensions[1])){
             // Rectangle in on the ground
             velocity = 0;
             isInAir = false;
@@ -93,61 +108,26 @@ int main(){
             velocity += jumpVelocity;
 
         // Update obstacle position
-        nebulae[0].pos.x += nebVel * deltaTime;
-
-        // Update obstacle position
-        nebulae[1].pos.x += nebVel * deltaTime;
+        for (int i = 0; i < sizeOfNebulae; i++)
+            nebulae[i].pos.x += nebVel * deltaTime;
 
         // Update character position
         scarfyData.pos.y += velocity * deltaTime;
 
         // Update character animation frame
-        if(!isInAir){
-            // Update running time
-            scarfyData.runningTime += deltaTime;
-            if(scarfyData.runningTime >= scarfyData.updateTime){
-                scarfyData.runningTime = 0.0;
-    
-                // Update animation frame
-                scarfyData.rec.x = scarfyData.frame * scarfyData.rec.width;
-                scarfyData.frame++;
-                if(scarfyData.frame > 5)
-                    scarfyData.frame = 0;
-            }
-        }
+        if(!isInAir)
+            scarfyData = updataAnimData(scarfyData, deltaTime, 5);
 
         // Update obstacle animation frame
-        nebulae[1].runningTime += deltaTime;
-        if(nebulae[1].runningTime >= nebulae[1].updateTime){
-            nebulae[1].runningTime = 0.0;
+        for(int i = 0; i < sizeOfNebulae; i++)
+            nebulae[i] = updataAnimData(nebulae[i], deltaTime, 7);
 
-            nebulae[1].rec.x =  nebulae[1].frame * nebulae[1].rec.width;
-            nebulae[1].frame++;
-            if(nebulae[1].frame > 7){
-                nebulae[1].frame = 0;
-            }
-        }
-
-        nebulae[0].runningTime += deltaTime;
-        if(nebulae[0].runningTime >= nebulae[0].updateTime){
-            nebulae[0].runningTime = 0.0;
-
-            nebulae[0].rec.x =  nebulae[0].frame * nebulae[0].rec.width;
-            nebulae[0].frame++;
-            if(nebulae[0].frame > 7){
-                nebulae[0].frame = 0;
-            }
-        }
-
-        // Draw Obstacle
-        DrawTextureRec(nebula, nebulae[0].rec, nebulae[0].pos, WHITE);
-
-        // Draw Obstacle
-        DrawTextureRec(nebula2, nebulae[1].rec, nebulae[1].pos, RED);
+        // Draw Obstacles
+        for(int i = 0; i < sizeOfNebulae; i++)
+              DrawTextureRec(nebula, nebulae[i].rec, nebulae[i].pos, WHITE);
 
         // Draw Character
         DrawTextureRec(scarfy, scarfyData.rec, scarfyData.pos, WHITE);
-
 
         // Stop drawing
         EndDrawing();
