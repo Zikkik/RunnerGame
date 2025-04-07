@@ -91,6 +91,8 @@ int main(){
     float mgX{};
     float fgX{};
 
+    bool collision{};
+
     // Game loop
     while(!WindowShouldClose()){
         // Delta Time
@@ -167,7 +169,6 @@ int main(){
         for(int i = 0; i < sizeOfNebulae; i++)
             nebulae[i] = updataAnimData(nebulae[i], deltaTime, 7);
 
-        bool collision{};
         for(AnimData nebula : nebulae){
 
             float pad{50};
@@ -189,9 +190,13 @@ int main(){
                 collision = true;
         }
 
-        if (collision){
-
-        } else {
+        if (collision)
+            // Lose the game
+            DrawText("Game Over!", windowDimensions[0] / 4, windowDimensions[1] / 2, 40, RED);
+        else if (scarfyData.pos.x >= finishLine)
+            // Win the game 
+            DrawText("You Win!", windowDimensions[0] / 4, windowDimensions[1] / 2, 40, RED);
+        else {
             // Draw Obstacles
             for(int i = 0; i < sizeOfNebulae; i++)
                 DrawTextureRec(nebula, nebulae[i].rec, nebulae[i].pos, WHITE);
